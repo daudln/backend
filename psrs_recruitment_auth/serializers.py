@@ -1,6 +1,7 @@
 from rest_framework import serializers
 
 from psrs_recruitment_auth.models import User, Profile
+from djoser import serializers as djoser_serializers
 
 
 class ProfileSerializer(serializers.ModelSerializer):
@@ -10,19 +11,37 @@ class ProfileSerializer(serializers.ModelSerializer):
         read_only_fields = ["points"]
 
 
-class UserSerializer(serializers.ModelSerializer):
-    profile = ProfileSerializer(required=True)
+class UserSerializer(djoser_serializers.UserSerializer):
+    profile = ProfileSerializer()
+
+    class Meta(djoser_serializers.UserSerializer.Meta):
+        fields = djoser_serializers.UserSerializer.Meta.fields + (
+            "first_name",
+            "last_name",
+            "user_type",
+            "profile",
+        )
+
+
+class UserCreateSerializer(serializers.ModelSerializer):
+    class Meta(djoser_serializers.UserCreateSerializer.Meta):
+        fields = djoser_serializers.UserCreateSerializer.Meta.fields + (
+            "first_name",
+            "last_name",
+            "user_type",
+        )
+
+        read_only_fields = ["user_type"]
+
+
+class UserRegistrationSerializer(serializers.ModelSerializer):
+    """
+    Serializer for user registration.
+    """
 
     class Meta:
         model = User
-        fields = [
-            "id",
-            "email",
-            "first_name",
-            "last_name",
-            "password",
-            "profile",
-        ]
+        fields = ["email", "first_name", "last_name", "password"]
         extra_kwargs = {
             "password": {"write_only": True},
             "email": {"required": True},
@@ -30,18 +49,10 @@ class UserSerializer(serializers.ModelSerializer):
             "last_name": {"required": True},
         }
 
+
+class LoginSerializer(serializers.Serializer):
+    username = serializers.CharField()
+    password = serializers.CharField()
+    
     def create(self, validated_data):
-        profile_data = validated_data.pop("profile")
-        user = User(
-            email=validated_data["email"],
-            first_name=validated_data["first_name"],
-            last_name=validated_data["last_name"],
-            username=validated_data["email"],
-        )
-
-        user.set_password(validated_data["password"])
-        user.save()
-
-        # Create the profile instance
-        Profile.objects.create(user=user, **profile_data)
-        return user
+        return super().create(validated_data)

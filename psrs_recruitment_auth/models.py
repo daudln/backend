@@ -5,6 +5,12 @@ from django.utils.translation import gettext as _
 from psrs_recruitment_mixin.models import BaseModel
 
 
+class UserType(models.TextChoices):
+    APPLICANT = "applicant", _("Applicant")
+    RECRUITER = "recruiter", _("Recruiter")
+    ADMIN = "admin", _("Admin")
+
+
 class User(AbstractUser):
     """
     Custom user model that extends the default Django user model.
@@ -17,6 +23,12 @@ class User(AbstractUser):
         },
         help_text=_("Required. Enter a valid email address."),
         verbose_name=_("Email address"),
+    )
+    user_type = models.CharField(
+        max_length=10,
+        choices=UserType.choices,
+        default=UserType.APPLICANT,
+        help_text=_("Select the type of user."),
     )
 
     def __str__(self):

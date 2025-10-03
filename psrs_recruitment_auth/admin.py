@@ -7,7 +7,7 @@ from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 @admin.register(User)
 class UserAdmin(BaseUserAdmin):
     search_fields = ["first_name", "last_name", "email", "username"]
-    list_display = ["username", "first_name", "last_name", "email"]
+    list_display = ["username", "first_name", "last_name", "email", "user_type"]
     list_filter = ["first_name", "last_name"]
 
     add_fieldsets = (
@@ -19,6 +19,7 @@ class UserAdmin(BaseUserAdmin):
                     "username",
                     "first_name",
                     "last_name",
+                    "user_type",
                     "email",
                     "password1",
                     "password2",
@@ -26,6 +27,21 @@ class UserAdmin(BaseUserAdmin):
             },
         ),
     )
+    fieldsets = (
+        (
+            None,
+            {
+                "fields": (
+                    "username",
+                    "first_name",
+                    "last_name",
+                    "email",
+                    "user_type",
+                )
+            },
+        ),
+    )
+    ordering = ["email"]
 
 
 @admin.register(Profile)

@@ -7,11 +7,10 @@ class CompanySerializer(serializers.ModelSerializer):
     class Meta:
         model = Company
         fields = [
-            "pk",
+            "id",
             "name",
             "address",
             "phone_number",
             "email",
             "website",
         ]
-        read_only_fields = ["pk"]
